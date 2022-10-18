@@ -1,5 +1,3 @@
-This is the readme.txt file in the example code for HW of "Trading using technical indicators".
-
 myStrategy.py: The only script you need to submit, which returns the action of "buy" or "sell". The parameters of this function are optimized by "bestParamByExhaustiveSearch.py".
 
 bestParamByExhaustiveSearch.py: This script obtains the best parameters by exhaustive search. You can then insert the best parameters into myStrategy.py for evaluation. To run it: python bestParamByExhaustiveSearch.py 0050.TW-short.csv
