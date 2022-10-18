@@ -4,4 +4,4 @@ bestParamByExhaustiveSearch.py: This script obtains the best parameters by exhau
 
 rrEstimate.py: This script calls myStrategy.py to obtain RR (return rate) for a given price vectors. Our judge will use a similiar script to evaluate your submission. To run it: python rrEstimate.py 0050.TW-short.csv
 
-*.csv 0050.TW-short.csv: Price of 0050 over the past 5 years
+*.csv 0050.TW.csv: Price of 0050 over the past 5 years
