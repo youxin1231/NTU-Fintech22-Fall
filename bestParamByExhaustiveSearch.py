@@ -69,8 +69,8 @@ if __name__=='__main__':
 	betaMin=0; betaMax=50				# Range of beta to explore
 	# Start exhaustive search
 	for timeperiod in trange(timeperiodMIN, timeperiodMAX+1):		# For-loop for windowSize
-		for alpha in trange(alphaMin, alphaMax+1):	    	# For-loop for alpha
-			for beta in trange(betaMin, betaMax+1):		# For-loop for beta
+		for alpha in range(alphaMin, alphaMax+1):	    	# For-loop for alpha
+			for beta in range(betaMin, betaMax+1):		# For-loop for beta
 				returnRate=computeReturnRate(adjClose, timeperiod, alpha, beta)		# Start the whole run with the given parameters
 				if returnRate > returnRateBest:		# Keep the best parameters
 					timeperiodBest=timeperiod
