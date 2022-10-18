@@ -1,25 +1,29 @@
 import sys
 import numpy as np
 import pandas as pd
+import talib
+from tqdm import trange
 
 # Decision of the current day by the current price, with 3 modifiable parameters
-def myStrategy(pastPriceVec, currentPrice, windowSize, alpha, beta):
-	import numpy as np
-	action=0		# action=1(buy), -1(sell), 0(hold), with 0 as the default action
-	dataLen=len(pastPriceVec)		# Length of the data vector
-	if dataLen==0:
-		return action
-	# Compute ma
-	if dataLen<windowSize:
-		ma=np.mean(pastPriceVec)	# If given price vector is small than windowSize, compute MA by taking the average
+def myStrategy(pastPriceVec, currentPrice, timeperiod, alpha, beta):
+	action=0	# action=1(buy), -1(sell), 0(hold), with 0 as the default action
+
+	PriceVec = np.append(pastPriceVec, currentPrice)
+
+	dataLen=len(PriceVec)	# Length of the data vector
+	if dataLen < timeperiod:
+		action = 0
 	else:
-		windowedData=pastPriceVec[-windowSize:]		# Compute the normal MA using windowSize
-		ma=np.mean(windowedData)
-	# Determine action
-	if (currentPrice-ma)>alpha:		# If price-ma > alpha ==> buy
-		action=1
-	elif (currentPrice-ma)<-beta:	# If price-ma < -beta ==> sell
-		action=-1
+		# Compute long RSI
+		rsilist_long = talib.RSI(PriceVec[-(timeperiod+1):], timeperiod)
+		rsi_long = rsilist_long[-1]
+
+		# Determine actions based on long term RSI
+		if (rsi_long > alpha):
+			action = 1
+		elif (rsi_long < beta):
+			action = -1
+			
 	return action
 
 # Compute return rate over a given price vector, with 3 modifiable parameters
@@ -60,21 +64,17 @@ if __name__=='__main__':
 	returnRateBest=-1.00	 # Initial best return rate
 	df=pd.read_csv(sys.argv[1])	# read stock file
 	adjClose=df["Adj Close"].values		# get adj close as the price vector
-	windowSizeMin=11; windowSizeMax=20;	# Range of windowSize to explore
-	alphaMin=-5; alphaMax=5;			# Range of alpha to explore
-	betaMin=-5; betaMax=5				# Range of beta to explore
+	timeperiodMIN=5; timeperiodMAX=30;	# Range of windowSize to explore
+	alphaMin=50; alphaMax=100;			# Range of alpha to explore
+	betaMin=0; betaMax=50				# Range of beta to explore
 	# Start exhaustive search
-	for windowSize in range(windowSizeMin, windowSizeMax+1):		# For-loop for windowSize
-		print("windowSize=%d" %(windowSize))
-		for alpha in range(alphaMin, alphaMax+1):	    	# For-loop for alpha
-			print("\talpha=%d" %(alpha))
-			for beta in range(betaMin, betaMax+1):		# For-loop for beta
-				print("\t\tbeta=%d" %(beta), end="")	# No newline
-				returnRate=computeReturnRate(adjClose, windowSize, alpha, beta)		# Start the whole run with the given parameters
-				print(" ==> returnRate=%f " %(returnRate))
+	for timeperiod in trange(timeperiodMIN, timeperiodMAX+1):		# For-loop for windowSize
+		for alpha in trange(alphaMin, alphaMax+1):	    	# For-loop for alpha
+			for beta in trange(betaMin, betaMax+1):		# For-loop for beta
+				returnRate=computeReturnRate(adjClose, timeperiod, alpha, beta)		# Start the whole run with the given parameters
 				if returnRate > returnRateBest:		# Keep the best parameters
-					windowSizeBest=windowSize
+					timeperiodBest=timeperiod
 					alphaBest=alpha
 					betaBest=beta
 					returnRateBest=returnRate
-	print("Best settings: windowSize=%d, alpha=%d, beta=%d ==> returnRate=%f" %(windowSizeBest,alphaBest,betaBest,returnRateBest))		# Print the best result
+	print("Best settings: windowSize=%d, alpha=%d, beta=%d ==> returnRate=%f" %(timeperiodBest,alphaBest,betaBest,returnRateBest))		# Print the best result
